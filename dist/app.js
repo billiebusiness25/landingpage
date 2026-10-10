@@ -23,3 +23,47 @@ document.querySelector('#checkout-button').addEventListener('click', () => dialo
 document.querySelectorAll('.dialog-close, .dialog-dismiss').forEach(button => button.addEventListener('click', () => dialog.close()));
 dialog.addEventListener('click', event => { if(event.target === dialog) { const bounds = dialog.getBoundingClientRect(); if(event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close(); } });
 document.querySelector('#year').textContent = new Date().getFullYear();
+
+// Two seamless preview rows; duplicate groups keep both edges filled while moving.
+const previewGrid = document.querySelector('.preview-grid');
+if (previewGrid) {
+  const cards = [...previewGrid.children];
+  const marquee = document.createElement('div');
+  marquee.className = 'preview-marquee';
+  marquee.setAttribute('aria-label', 'Preview isi paket dalam dua baris');
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'marquee-toggle';
+  toggle.textContent = 'Ⅱ Jeda animasi';
+  toggle.setAttribute('aria-pressed', 'false');
+  toggle.setAttribute('aria-controls', 'package-marquee');
+  marquee.id = 'package-marquee';
+  toggle.addEventListener('click', () => {
+    const paused = marquee.classList.toggle('is-paused');
+    toggle.setAttribute('aria-pressed', String(paused));
+    toggle.textContent = paused ? '▷ Lanjutkan animasi' : 'Ⅱ Jeda animasi';
+  });
+  for (let rowIndex = 0; rowIndex < 2; rowIndex++) {
+    const row = document.createElement('div');
+    row.className = `marquee-row ${rowIndex === 0 ? 'marquee-right' : 'marquee-left'}`;
+    const track = document.createElement('div');
+    track.className = 'marquee-track';
+    const orderedCards = rowIndex === 0 ? cards : [...cards.slice(2), ...cards.slice(0, 2)];
+    for (let groupIndex = 0; groupIndex < 2; groupIndex++) {
+      const group = document.createElement('div');
+      group.className = 'marquee-group';
+      if (groupIndex > 0 || rowIndex > 0) group.setAttribute('aria-hidden', 'true');
+      for (let repeat = 0; repeat < 2; repeat++) {
+        orderedCards.forEach(card => {
+          const copy = card.cloneNode(true);
+          if (repeat > 0) copy.setAttribute('aria-hidden', 'true');
+          group.append(copy);
+        });
+      }
+      track.append(group);
+    }
+    row.append(track);
+    marquee.append(row);
+  }
+  previewGrid.replaceWith(toggle, marquee);
+}
