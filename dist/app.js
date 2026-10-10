@@ -6,24 +6,6 @@ const foods = [
   {name:'Kasutera Cake',category:'bread',label:'ROTI & PASTRY',image:'photo-1464305795204-6f5bbfc7fb81'},
   {name:'Es Kopi Susu',category:'drink',label:'MINUMAN',image:'photo-1461023058943-07fcbe16d735'}
 ];
-const sectionLabels = [
-  'Hero', 'Testimoni', 'Pain Points', 'Perbandingan', 'Target Audiens',
-  'Isi Paket & Bonus', 'Simulasi Harian', 'Cerita Sukses',
-  'Alasan Memilih Paket', 'FAQ', 'Promo & Checkout'
-];
-document.querySelectorAll('main > section').forEach((section, index) => {
-  const marker = document.createElement('div');
-  marker.className = 'section-marker';
-  marker.setAttribute('aria-label', `Section ${index + 1}: ${sectionLabels[index]}`);
-  const number = document.createElement('span');
-  number.className = 'section-marker-number';
-  number.textContent = String(index + 1).padStart(2, '0');
-  const label = document.createElement('span');
-  label.textContent = sectionLabels[index];
-  marker.append(number, label);
-  const container = section.querySelector(':scope > .container');
-  if (container) container.before(marker);
-});
 function renderFoods(category = 'all') {
   document.querySelector('#food-grid').innerHTML = foods.filter(food => category === 'all' || food.category === category).map(food => `<article class="food-card"><div class="food-photo"><img src="https://images.unsplash.com/${food.image}?w=400&auto=format&fit=crop&q=80" alt="Ilustrasi ${food.name}" width="200" height="140"><span>↗</span></div><div class="food-info"><small>${food.label}</small><h3>${food.name}</h3></div></article>`).join('');
 }
@@ -37,7 +19,33 @@ document.querySelectorAll('.faq-list details').forEach(details => details.addEve
   if (details.open) document.querySelectorAll('.faq-list details').forEach(other => { if(other !== details) other.open = false; });
 }));
 const dialog = document.querySelector('#checkout-dialog');
-document.querySelector('#checkout-button').addEventListener('click', () => dialog.showModal());
+const orderForm = document.querySelector('#order-form');
+const nameInput = document.querySelector('#order-name');
+const whatsappInput = document.querySelector('#order-whatsapp');
+function validateOrderDetails() {
+  nameInput.setCustomValidity(nameInput.value.trim().length >= 2 ? '' : 'Masukkan nama lengkap minimal 2 karakter.');
+  const digits = whatsappInput.value.replace(/\D/g, '');
+  const validPhone = /^[+\d\s()-]+$/.test(whatsappInput.value.trim()) && digits.length >= 8 && digits.length <= 15;
+  whatsappInput.setCustomValidity(validPhone ? '' : 'Masukkan nomor WhatsApp yang valid, 8–15 digit.');
+}
+nameInput.addEventListener('input', validateOrderDetails);
+whatsappInput.addEventListener('input', validateOrderDetails);
+orderForm.addEventListener('submit', event => {
+  event.preventDefault();
+  validateOrderDetails();
+  if (!orderForm.reportValidity()) return;
+  const data = new FormData(orderForm);
+  const summary = document.querySelector('#order-summary');
+  summary.replaceChildren();
+  [['Nama', data.get('name')], ['WhatsApp', data.get('whatsapp')], ['Email', data.get('email')], ['Pembayaran', data.get('payment')]].forEach(([label, value]) => {
+    const term = document.createElement('dt');
+    const detail = document.createElement('dd');
+    term.textContent = label;
+    detail.textContent = String(value).trim();
+    summary.append(term, detail);
+  });
+  dialog.showModal();
+});
 document.querySelectorAll('.dialog-close, .dialog-dismiss').forEach(button => button.addEventListener('click', () => dialog.close()));
 dialog.addEventListener('click', event => { if(event.target === dialog) { const bounds = dialog.getBoundingClientRect(); if(event.clientX < bounds.left || event.clientX > bounds.right || event.clientY < bounds.top || event.clientY > bounds.bottom) dialog.close(); } });
 document.querySelector('#year').textContent = new Date().getFullYear();
