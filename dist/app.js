@@ -6,6 +6,24 @@ const foods = [
   {name:'Kasutera Cake',category:'bread',label:'ROTI & PASTRY',image:'photo-1464305795204-6f5bbfc7fb81'},
   {name:'Es Kopi Susu',category:'drink',label:'MINUMAN',image:'photo-1461023058943-07fcbe16d735'}
 ];
+const sectionLabels = [
+  'Hero', 'Testimoni', 'Pain Points', 'Perbandingan', 'Target Audiens',
+  'Isi Paket & Bonus', 'Simulasi Harian', 'Cerita Sukses',
+  'Alasan Memilih Paket', 'FAQ', 'Promo & Checkout'
+];
+document.querySelectorAll('main > section').forEach((section, index) => {
+  const marker = document.createElement('div');
+  marker.className = 'section-marker';
+  marker.setAttribute('aria-label', `Section ${index + 1}: ${sectionLabels[index]}`);
+  const number = document.createElement('span');
+  number.className = 'section-marker-number';
+  number.textContent = String(index + 1).padStart(2, '0');
+  const label = document.createElement('span');
+  label.textContent = sectionLabels[index];
+  marker.append(number, label);
+  const container = section.querySelector(':scope > .container');
+  if (container) container.before(marker);
+});
 function renderFoods(category = 'all') {
   document.querySelector('#food-grid').innerHTML = foods.filter(food => category === 'all' || food.category === category).map(food => `<article class="food-card"><div class="food-photo"><img src="https://images.unsplash.com/${food.image}?w=400&auto=format&fit=crop&q=80" alt="Ilustrasi ${food.name}" width="200" height="140"><span>↗</span></div><div class="food-info"><small>${food.label}</small><h3>${food.name}</h3></div></article>`).join('');
 }

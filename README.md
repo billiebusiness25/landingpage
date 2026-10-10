@@ -1,4 +1,4 @@
-# Dapur Cuan landing page
+# dapurprofit landing page
 
 Responsive Indonesian landing page with the 11 requested sections, Tailwind CSS browser utilities, custom styling, recipe category filters, FAQ accordions, and a mobile sticky CTA.
 
